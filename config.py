@@ -35,11 +35,14 @@ def carregar_config():
             pass
     
     # Fallback para variáveis de ambiente
+    conta_id = os.getenv('CONTA_VINDI_ID', '4328092596')
+    conta_id_int = int(conta_id) if conta_id and conta_id.strip() else 4328092596
+    
     config = {
         'VINDI_TOKEN': os.getenv('VINDI_TOKEN_LOBO_ATIVIDADES', ''),
         'OMIE_APP_KEY': os.getenv('OMIE_APP_KEY', ''),
         'OMIE_APP_SECRET': os.getenv('OMIE_APP_SECRET', ''),
-        'CONTA_VINDI_ID': int(os.getenv('CONTA_VINDI_ID', '0')) if os.getenv('CONTA_VINDI_ID') else 0,
+        'CONTA_VINDI_ID': conta_id_int,
         'EMPRESA': os.getenv('EMPRESA', 'LOBO_ATIVIDADES')
     }
     
