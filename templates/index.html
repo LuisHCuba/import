@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importador CSV → Vindi → Omie</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 50px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            background: #f8f9ff;
+            border-color: #764ba2;
+        }
+        
+        .upload-area.dragover {
+            background: #f0f4ff;
+            border-color: #764ba2;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: 600;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .progress-container {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .logs-container {
+            max-height: 400px;
+            overflow-y: auto;
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 5px;
+        }
+        
+        .log-info {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .log-success {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .log-warning {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .log-error {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        
+        .emoji {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Importador CSV</h1>
+            <p class="subtitle">Vindi + Omie | Lobo Atividades Esportivas</p>
+            <div style="margin-top: 20px;">
+                <a href="/configuracoes" style="color: #667eea; text-decoration: none; font-weight: 600;">
+                    ⚙️ Configurações
+                </a>
+            </div>
+            {% if not config_ok %}
+            <div style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                ⚠️ <strong>Configuração necessária!</strong> 
+                <a href="/configuracoes" style="color: #856404; text-decoration: underline;">Clique aqui para configurar</a>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="card">
+            <div class="upload-area" id="uploadArea">
+                <div class="emoji">📄</div>
+                <h2>Arraste seu arquivo CSV aqui</h2>
+                <p style="color: #666; margin: 15px 0;">ou clique para selecionar</p>
+                <input type="file" id="fileInput" accept=".csv">
+                <button class="btn" onclick="document.getElementById('fileInput').click()">
+                    Selecionar CSV
+                </button>
+            </div>
+            
+            <div class="progress-container" id="progressContainer">
+                <h3 style="margin-bottom: 15px;">📊 Progresso da Importação</h3>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill">0%</div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="statTotal">0</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statProcessadas">0</div>
+                        <div class="stat-label">✅ Processadas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statErros">0</div>
+                        <div class="stat-label">❌ Erros</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statPuladas">0</div>
+                        <div class="stat-label">⏭️ Puladas</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin: 30px 0 15px 0;">📝 Logs em Tempo Real</h3>
+                <div class="logs-container" id="logsContainer">
+                    <div class="log-entry log-info">Aguardando processamento...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const progressContainer = document.getElementById('progressContainer');
+        
+        // Drag & Drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            uploadFile(file);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            uploadFile(file);
+        });
+        
+        function uploadFile(file) {
+            if (!file || !file.name.endsWith('.csv')) {
+                alert('❌ Por favor, selecione um arquivo CSV válido!');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            progressContainer.style.display = 'block';
+            document.getElementById('logsContainer').innerHTML = '<div class="log-entry log-info">📤 Enviando arquivo...</div>';
+            
+            fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.sucesso) {
+                    iniciarMonitoramento();
+                } else {
+                    alert('❌ Erro: ' + data.erro);
+                }
+            })
+            .catch(error => {
+                alert('❌ Erro ao enviar: ' + error);
+            });
+        }
+        
+        function iniciarMonitoramento() {
+            const interval = setInterval(() => {
+                fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    atualizarInterface(data);
+                    
+                    if (!data.em_andamento && data.progresso > 0) {
+                        clearInterval(interval);
+                    }
+                });
+            }, 1000);  // Atualizar a cada 1 segundo
+        }
+        
+        function atualizarInterface(data) {
+            // Progresso
+            const porcentagem = data.total > 0 ? Math.round((data.progresso / data.total) * 100) : 0;
+            document.getElementById('progressFill').style.width = porcentagem + '%';
+            document.getElementById('progressFill').textContent = porcentagem + '%';
+            
+            // Stats
+            document.getElementById('statTotal').textContent = data.total;
+            document.getElementById('statProcessadas').textContent = data.processadas;
+            document.getElementById('statErros').textContent = data.erros;
+            document.getElementById('statPuladas').textContent = data.puladas;
+            
+            // Logs
+            const logsContainer = document.getElementById('logsContainer');
+            logsContainer.innerHTML = '';
+            
+            data.logs.slice(-30).reverse().forEach(log => {
+                const logDiv = document.createElement('div');
+                logDiv.className = `log-entry log-${log.tipo}`;
+                logDiv.textContent = log.mensagem;
+                logsContainer.appendChild(logDiv);
+            });
+        }
+    </script>
+</body>
+</html>
+

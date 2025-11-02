@@ -1,0 +1,33 @@
+# Credenciais
+.env
+
+# Dados sensíveis
+*.csv
+relatorio_*.json
+config.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+
+# Uploads e relatórios
+uploads/
+relatorios/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Scripts locais
+push_github.bat

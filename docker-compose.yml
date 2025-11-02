@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  importador-omie:
+    build: .
+    container_name: importador-omie
+    
+    ports:
+      - "5000:5000"
+    
+    volumes:
+      - importador-uploads:/app/uploads
+      - importador-relatorios:/app/relatorios
+      - importador-config:/app/config
+    
+    environment:
+      # Deixe vazio - usuário configura via interface web
+      - VINDI_TOKEN_LOBO_ATIVIDADES=
+      - OMIE_APP_KEY=5604910395084
+      - OMIE_APP_SECRET=bd388fb9bf27eb6b638b0daf134f6312
+      - CONTA_VINDI_ID=4328092596
+      - EMPRESA=LOBO_ATIVIDADES
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  importador-uploads:
+  importador-relatorios:
+  importador-config:
+

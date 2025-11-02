@@ -1,0 +1,44 @@
+version: '3.8'
+
+# STACK PARA PORTAINER
+# Cole este conteúdo ao criar uma Stack no Portainer
+
+services:
+  importador-omie:
+    image: ghcr.io/SEU_USUARIO/importador-csv-omie:latest
+    # OU se preferir build local:
+    # build: https://github.com/SEU_USUARIO/importador-csv-omie.git
+    
+    container_name: importador-omie
+    
+    ports:
+      - "5000:5000"
+    
+    volumes:
+      # Persistir uploads e relatórios
+      - importador-uploads:/app/uploads
+      - importador-relatorios:/app/relatorios
+      # Persistir configurações
+      - importador-config:/app
+    
+    environment:
+      # CONFIGURE AQUI OU VIA PORTAINER ENVIRONMENT VARIABLES
+      - VINDI_TOKEN_LOBO_ATIVIDADES=
+      - OMIE_APP_KEY=5604910395084
+      - OMIE_APP_SECRET=bd388fb9bf27eb6b638b0daf134f6312
+      - CONTA_VINDI_ID=4328092596
+      - EMPRESA=LOBO_ATIVIDADES
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  importador-uploads:
+  importador-relatorios:
+  importador-config:
+

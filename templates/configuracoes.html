@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Importador Omie</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container { max-width: 800px; margin: 0 auto; }
+        
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-weight: 600;
+            width: 100%;
+        }
+        
+        .btn:hover { transform: scale(1.02); }
+        
+        .btn-secondary {
+            background: #6c757d;
+            margin-top: 10px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .help-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>⚙️ Configurações</h1>
+            <p style="color: #666; margin-bottom: 30px;">Configure suas credenciais de acesso</p>
+            
+            <div id="alertContainer"></div>
+            
+            <form id="configForm">
+                <div class="form-group">
+                    <label for="vindiToken">🔑 Token Vindi (Lobo Atividades)</label>
+                    <input type="password" id="vindiToken" name="VINDI_TOKEN" placeholder="Cole o token completo aqui" required>
+                    <div class="help-text">
+                        Acesse: Vindi → Minha Conta → Clique no ícone do olho ao lado do token
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="omieKey">🔑 Omie App Key</label>
+                    <input type="text" id="omieKey" name="OMIE_APP_KEY" value="5604910395084" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="omieSecret">🔒 Omie App Secret</label>
+                    <input type="password" id="omieSecret" name="OMIE_APP_SECRET" value="bd388fb9bf27eb6b638b0daf134f6312" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contaVindi">🏦 Conta Vindi ID (Omie)</label>
+                    <input type="text" id="contaVindi" name="CONTA_VINDI_ID" value="4328092596" required>
+                    <div class="help-text">ID da conta corrente VINDI no sistema Omie</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="empresa">🏢 Empresa</label>
+                    <input type="text" id="empresa" name="EMPRESA" value="LOBO_ATIVIDADES" required>
+                </div>
+                
+                <button type="submit" class="btn">💾 Salvar Configurações</button>
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='/'">
+                    ← Voltar para Importação
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Carregar configurações atuais
+        fetch('/api/configuracoes')
+        .then(r => r.json())
+        .then(data => {
+            if (data.config) {
+                document.getElementById('vindiToken').value = data.config.VINDI_TOKEN || '';
+                document.getElementById('omieKey').value = data.config.OMIE_APP_KEY || '5604910395084';
+                document.getElementById('omieSecret').value = data.config.OMIE_APP_SECRET || 'bd388fb9bf27eb6b638b0daf134f6312';
+                document.getElementById('contaVindi').value = data.config.CONTA_VINDI_ID || '4328092596';
+                document.getElementById('empresa').value = data.config.EMPRESA || 'LOBO_ATIVIDADES';
+            }
+        });
+        
+        // Salvar configurações
+        document.getElementById('configForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const config = {
+                VINDI_TOKEN: document.getElementById('vindiToken').value,
+                OMIE_APP_KEY: document.getElementById('omieKey').value,
+                OMIE_APP_SECRET: document.getElementById('omieSecret').value,
+                CONTA_VINDI_ID: parseInt(document.getElementById('contaVindi').value),
+                EMPRESA: document.getElementById('empresa').value
+            };
+            
+            fetch('/api/configuracoes', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(config)
+            })
+            .then(r => r.json())
+            .then(data => {
+                const alertDiv = document.getElementById('alertContainer');
+                
+                if (data.sucesso) {
+                    alertDiv.innerHTML = '<div class="alert alert-success">✅ ' + data.mensagem + '</div>';
+                    setTimeout(() => { window.location.href = '/'; }, 2000);
+                } else {
+                    alertDiv.innerHTML = '<div class="alert alert-danger">❌ ' + data.erros.join(', ') + '</div>';
+                }
+            })
+            .catch(error => {
+                alert('❌ Erro ao salvar: ' + error);
+            });
+        });
+    </script>
+</body>
+</html>
+

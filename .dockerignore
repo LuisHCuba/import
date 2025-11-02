@@ -1,0 +1,15 @@
+.env
+*.csv
+relatorio_*.json
+__pycache__
+*.pyc
+.git
+.gitignore
+README.md
+INSTALACAO.md
+PORTAINER.md
+venv/
+env/
+.vscode/
+.idea/
+
