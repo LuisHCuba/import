@@ -37,9 +37,9 @@ def carregar_config():
     # Fallback para variáveis de ambiente
     config = {
         'VINDI_TOKEN': os.getenv('VINDI_TOKEN_LOBO_ATIVIDADES', ''),
-        'OMIE_APP_KEY': os.getenv('OMIE_APP_KEY', '5604910395084'),
-        'OMIE_APP_SECRET': os.getenv('OMIE_APP_SECRET', 'bd388fb9bf27eb6b638b0daf134f6312'),
-        'CONTA_VINDI_ID': int(os.getenv('CONTA_VINDI_ID', '4328092596')),
+        'OMIE_APP_KEY': os.getenv('OMIE_APP_KEY', ''),
+        'OMIE_APP_SECRET': os.getenv('OMIE_APP_SECRET', ''),
+        'CONTA_VINDI_ID': int(os.getenv('CONTA_VINDI_ID', '0')) if os.getenv('CONTA_VINDI_ID') else 0,
         'EMPRESA': os.getenv('EMPRESA', 'LOBO_ATIVIDADES')
     }
     

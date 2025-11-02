@@ -2,36 +2,40 @@ version: '3.8'
 
 services:
   importador-omie:
-    build: .
+    image: ghcr.io/luishcuba/import:latest
     container_name: importador-omie
-    
-    ports:
-      - "5000:5000"
-    
-    volumes:
-      - importador-uploads:/app/uploads
-      - importador-relatorios:/app/relatorios
-      - importador-config:/app/config
-    
-    environment:
-      # Deixe vazio - usuário configura via interface web
-      - VINDI_TOKEN_LOBO_ATIVIDADES=
-      - OMIE_APP_KEY=5604910395084
-      - OMIE_APP_SECRET=bd388fb9bf27eb6b638b0daf134f6312
-      - CONTA_VINDI_ID=4328092596
-      - EMPRESA=LOBO_ATIVIDADES
-    
     restart: unless-stopped
     
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5000 || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.importador.rule=Host(`import.lhcx.tech`)"
+      - "traefik.http.routers.importador.entrypoints=websecure"
+      - "traefik.http.routers.importador.tls=true"
+      - "traefik.http.routers.importador.tls.certresolver=leresolver"
+      - "traefik.http.services.importador.loadbalancer.server.port=5000"
+    
+    volumes:
+      - importador_uploads:/app/uploads
+      - importador_relatorios:/app/relatorios
+      - importador_config:/app
+    
+    environment:
+      # Usuário configura via interface web em: import.lhcx.tech/configuracoes
+      - VINDI_TOKEN_LOBO_ATIVIDADES=
+      - OMIE_APP_KEY=
+      - OMIE_APP_SECRET=
+      - CONTA_VINDI_ID=
+      - EMPRESA=LOBO_ATIVIDADES
+    
+    networks:
+      - import
 
 volumes:
-  importador-uploads:
-  importador-relatorios:
-  importador-config:
+  importador_uploads:
+  importador_relatorios:
+  importador_config:
+
+networks:
+  import:
+    external: true
 
